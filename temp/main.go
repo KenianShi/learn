@@ -1,15 +1,14 @@
 package main
 
 import (
-	"net/http"
+	"bytes"
 	"fmt"
-	"io/ioutil"
 )
 
 func main() {
-	r,_ :=http.Get("https://www.cmttracking.io/address/0x3af427d092f9bf934d2127408935c1455170ea8a")
-	fmt.Printf("%s \n",r.Body)
-	fmt.Println("================================================================")
-	b,_ := ioutil.ReadAll(r.Body)
-	fmt.Printf("%s ",b)
+	a := [][]byte{[]byte("wujun"),[]byte("xiaoming")}
+	fmt.Printf("%s \n",a)
+	b := bytes.Join(a,[]byte("-"))			//将两个字节以-分隔号分隔开，最后返回一个字节
+	fmt.Printf("%s: \n",b)
+
 }
