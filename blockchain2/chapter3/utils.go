@@ -1,20 +1,16 @@
-package chapter4
+package chapter3
 
 import (
-	"log"
 	"bytes"
 	"encoding/binary"
+	"log"
 )
 
-func checkErr(err error){
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func intToHex(num int64) []byte{
+func IntToHex(num int64) []byte{
 	buff := new(bytes.Buffer)
 	err := binary.Write(buff,binary.BigEndian,num)
-	checkErr(err)
+	if err != nil {
+		log.Panic(err)
+	}
 	return buff.Bytes()
 }

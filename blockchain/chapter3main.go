@@ -1,6 +1,6 @@
 package main
 
-import "shikenian/learn/blockchain/sknblockchain/chapter3"
+import "shikenian/learn/blockchain/chapter3"
 
 func main() {
 	bc := chapter3.NewBlockchain()
