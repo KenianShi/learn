@@ -1,0 +1,47 @@
+package lib
+
+import (
+	"bytes"
+	"fmt"
+	"github.com/tendermint/tendermint/crypto"
+	"time"
+)
+
+type Tx struct {
+	Payload 	Payload				`json:"payload"`
+	PubKey 		crypto.PubKey		`json:"pub_key"`
+	Signature 	[]byte				`json:"signature"`
+	Sequence 	int64				`json:"sequence"`
+}
+
+func NewTransaction(pld Payload) *Tx{
+	sequence := time.Now().Unix()
+	return &Tx{Payload:pld,Sequence:sequence}
+}
+
+func (tx *Tx) Sign(privKey crypto.PrivKey) *Tx{
+	data := tx.Payload.GetSignBytes()
+	signature,err := privKey.Sign(data)
+	if err != nil{
+		panic(err)
+	}
+
+
+	tx.PubKey = privKey.PubKey()
+	tx.Signature = signature
+	return tx
+}
+
+func (tx *Tx) Verify() bool {
+	signer := tx.Payload.GetSigner()
+	addressFromKey := tx.PubKey.Address()
+	if !bytes.Equal(signer,addressFromKey) {
+		fmt.Println("Signer and the addressFromKey not matched")
+		return false
+	}
+	data := tx.Payload.GetSignBytes()
+	signature := tx.Signature
+	//fmt.Printf("打印信息3：\n%v\n%v\n",data,signature)
+	return tx.PubKey.VerifyBytes(data,signature)
+}
+
