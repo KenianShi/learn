@@ -7,7 +7,6 @@ import (
 	"github.com/KenianShi/learn/mytendermint/lib"
 	"github.com/tendermint/tendermint/crypto"
 	kf "github.com/tendermint/tendermint/crypto/secp256k1"
-	"math/big"
 )
 
 var (
@@ -30,11 +29,12 @@ func main() {
 	txIssue := lib.NewTransaction( lib.NewIssuePayload(
 		issuer1.PubKey().Address(),
 		p1.PubKey().Address(),
-		big.NewInt(1000)   ))
+		1000))
 
 	txIssue.Sign(issuer1)
 	fmt.Printf("开始：%s \n",txIssue.PubKey.Address().String())
 	fmt.Printf("validated1 => %t\n",txIssue.Verify())
+	fmt.Printf("%T,%+v\n",txIssue,txIssue)
 	rawtx,err := lib.MarshalBinary(txIssue)
 	if err !=nil { panic(err) }
 
@@ -43,7 +43,7 @@ func main() {
 	err =  lib.UnmarshalBinary(rawtx,&txReceived)
 	if err != nil { panic(err) }
 	fmt.Printf("开始：%s \n",txReceived.PubKey.Address().String())
-
+	fmt.Printf("%T,%+v\n",txReceived,txReceived)
 	fmt.Printf("validated2 => %t\n",txReceived.Verify())
 
 

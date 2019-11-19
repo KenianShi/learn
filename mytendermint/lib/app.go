@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
-	"math/big"
 )
 
 var (
@@ -14,11 +13,11 @@ var (
 
 type TokenApp struct {
 	types.BaseApplication
-	Accounts 	map[string]*big.Int
+	Accounts 	map[string]int64
 }
 
 func NewTokenApp() *TokenApp{
-	return &TokenApp{Accounts: map[string]*big.Int{}}
+	return &TokenApp{Accounts: map[string]int64{}}
 }
 
 func (app *TokenApp) CheckTx(req types.RequestCheckTx)(rsp types.ResponseCheckTx){
@@ -41,7 +40,7 @@ func (app *TokenApp) DeliverTx(req types.RequestDeliverTx)(rsp types.ResponseDel
 	switch tx.Payload.GetType(){
 	case "issueTx":
 		pld := tx.Payload.(*IssuePayload)
-		err := app.issue(pld.Issuer,pld.To,pld.Value)
+		err := app.issue(pld.Issuer,pld.To)
 		if err != nil {
 			rsp.Log = err.Error()
 		}
@@ -72,22 +71,29 @@ func (app *TokenApp) decodeTx(bz []byte)(*Tx,error){
 	return &tx,err
 }
 
-func (app *TokenApp) issue(issuer,to crypto.Address,value *big.Int)error{
+func (app *TokenApp) issue(issuer,to crypto.Address)error{
 	wallet := LoadWallet()
 	SYSTEM_ISSUER = wallet.GetAddress("issuer")
 	if !bytes.Equal(issuer,SYSTEM_ISSUER){
 		return errors.New("invalid issuer")
 	}
-	app.Accounts[to.String()].Add(app.Accounts[to.String()],value)
+	balance := app.Accounts[to.String()]
+	balance += 25
+	app.Accounts[to.String()] = balance
 	return nil
 }
 
-func (app *TokenApp) transfer(from,to crypto.Address,value *big.Int)error{
-	if app.Accounts[from.String()].Cmp(value) < 0 {
+func (app *TokenApp) transfer(from,to crypto.Address,value int64)error{
+	if app.Accounts[from.String()] < value {
 		return errors.New("not enough balance")
 	}
-	app.Accounts[from.String()].Sub(app.Accounts[from.String()],value)
-	app.Accounts[to.String()].Add(app.Accounts[to.String()],value)
+	balanceFrom := app.Accounts[from.String()]
+	balanceFrom -= value
+	balanceTo := app.Accounts[to.String()]
+	balanceTo += value
+
+	app.Accounts[from.String()] = balanceFrom
+	app.Accounts[to.String()] = balanceTo
 	return nil
 }
 

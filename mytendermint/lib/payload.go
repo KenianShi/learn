@@ -2,7 +2,6 @@ package lib
 
 import (
 	"github.com/tendermint/tendermint/crypto"
-	"math/big"
 )
 
 type Payload interface {
@@ -12,12 +11,11 @@ type Payload interface {
 }
 
 type IssuePayload struct {
-	Issuer  crypto.Address
-	To    crypto.Address
-	Value *big.Int
+	Issuer crypto.Address
+	To     crypto.Address
+	Value	int64
 }
-
-func NewIssuePayload(issuer,to crypto.Address,value *big.Int)*IssuePayload{
+func NewIssuePayload(issuer,to crypto.Address,value int64)*IssuePayload{
 	return &IssuePayload{Issuer:issuer,To:to,Value:value}
 }
 
@@ -40,10 +38,10 @@ func (pld *IssuePayload) GetSignBytes()[]byte{
 type TxPayload struct{
 	From	crypto.Address
 	To 		crypto.Address
-	Value 	*big.Int
+	Value 	int64
 }
 
-func NewTxPayload(from,to crypto.Address,value *big.Int)*TxPayload{
+func NewTxPayload(from,to crypto.Address,value int64)*TxPayload{
 	return &TxPayload{From: from,To:to,Value:value,}
 }
 

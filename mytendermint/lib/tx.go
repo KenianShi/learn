@@ -14,22 +14,26 @@ type Tx struct {
 	Sequence 	int64				`json:"sequence"`
 }
 
-func NewTransaction(pld Payload) *Tx{
-	sequence := time.Now().Unix()
-	return &Tx{Payload:pld,Sequence:sequence}
+type Transaction interface {
+	Sign(crypto.PrivKey) error
+	Verify() bool
 }
 
-func (tx *Tx) Sign(privKey crypto.PrivKey) *Tx{
+
+func NewTransaction(pld Payload) Tx{
+	sequence := time.Now().Unix()
+	return Tx{Payload:pld,Sequence:sequence}
+}
+
+func (tx *Tx) Sign(privKey crypto.PrivKey) error{
 	data := tx.Payload.GetSignBytes()
 	signature,err := privKey.Sign(data)
 	if err != nil{
 		panic(err)
 	}
-
-
 	tx.PubKey = privKey.PubKey()
 	tx.Signature = signature
-	return tx
+	return err
 }
 
 func (tx *Tx) Verify() bool {
